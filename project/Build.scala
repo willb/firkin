@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object FirkinBuild  extends Build {
-  val VERSION = "0.0.1-SNAPSHOT"
+  val VERSION = "0.1.0"
   
   lazy val common = project settings(commonSettings : _*)
 
