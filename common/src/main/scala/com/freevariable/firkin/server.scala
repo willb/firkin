@@ -27,7 +27,7 @@ import UrlParsing._
 
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-
+import org.json4s.JsonDSL._
 
 object Firkin {
   lazy val DEBUG = sys.env.getOrElse("FIRKIN_DEBUG", "false").toLowerCase == "true"
@@ -42,7 +42,18 @@ object Firkin {
         import connection.callbackExecutor
         
         connection.become {
-          case req @ Get on Root => req.ok("lgtm")
+          case req @ Get on Root => req.ok("")
+          
+          case req @ Get on Root / "cache" => {
+            val cmd = KV.LIST()
+            cache ! cmd
+            Callback.fromFuture(cmd.promise.future).map {
+              case ls: List[String] => {
+                val json = ("cachedKeys" -> ls)
+                req.ok(compact(render(json)))
+              }
+            }
+          }
           
           case req @ Post on Root / "cache" => {
             if (DEBUG) {
