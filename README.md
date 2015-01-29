@@ -18,6 +18,19 @@ You'll then have a server running on port 4091.  You can store and access data v
 
 Submitting empty POST data or submitting invalid JSON as POST data will result in various 4xx errors.
 
+To interact with Firkin using `curl`, try the following:
+
+    % curl -i -d '{"foo":"bar"}' http://localhost:4091/cache
+    HTTP/1.1 302 Found
+    Location: http://localhost:4091/cache/a5e744d0164540d33b1d7ea616c28f2fa97e754a
+    Content-Length: 0
+    
+    % curl http://localhost:4091/cache/a5e744d0164540d33b1d7ea616c28f2fa97e754a
+    {"foo":"bar"}
+    
+    % curl http://localhost:4091/cache/
+    {"cachedKeys":["a5e744d0164540d33b1d7ea616c28f2fa97e754a"]}
+
 ### answers to frequently anticipated questions
 
 1.  A firkin is 4.091 L but we can't have fractional ports.
