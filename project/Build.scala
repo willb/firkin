@@ -5,8 +5,12 @@ object FirkinBuild  extends Build {
   val VERSION = "0.0.1-SNAPSHOT"
   
   lazy val common = project settings(commonSettings : _*)
+
+  lazy val server = project settings(serverSettings : _*) dependsOn(common)
   
   lazy val root = (project in file(".")).aggregate(common)
+  
+  lazy val serverRun = taskKey[Unit]("Run a Firkin server.")
   
   def baseSettings = Defaults.defaultSettings ++ Seq(
     organization := "com.freevariable",
@@ -37,6 +41,13 @@ object FirkinBuild  extends Build {
   )
   
   def commonSettings = baseSettings ++ colossusSettings ++ jsonSettings
+  
+  def serverSettings = commonSettings ++ Seq(
+    initialCommands in console := """
+    import com.freevariable.firkin.Firkin
+    val cache = Firkin.basicStart
+    """
+  )
   
   val SCALA_VERSION = "2.10.4"
   

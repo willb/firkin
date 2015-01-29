@@ -34,6 +34,13 @@ import scala.util.{Try, Success, Failure}
 object Firkin {
   lazy val DEBUG = sys.env.getOrElse("FIRKIN_DEBUG", "false").toLowerCase == "true"
 
+  // use me for ultra-simple console 
+  def basicStart = {
+    implicit val io = IOSystem()
+    start()
+    io.actorSystem.actorOf(Props[KV])
+  }
+
   def start(port: Int = 4091)(implicit io: IOSystem): ServerRef = {
     import io.actorSystem.dispatcher
 
