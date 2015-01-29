@@ -29,6 +29,8 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.json4s.JsonDSL._
 
+import scala.util.{Try, Success, Failure}
+
 object Firkin {
   lazy val DEBUG = sys.env.getOrElse("FIRKIN_DEBUG", "false").toLowerCase == "true"
 
@@ -63,15 +65,24 @@ object Firkin {
             
             val host = req.head.singleHeader("host").getOrElse("localhost:4091")
             req.entity match {
-              case Some(bytes) =>
-                val cmd = KV.PUT(bytes.decodeString("UTF-8"))
-                cache ! cmd
-                Callback.fromFuture(cmd.promise.future).map { 
-                  case s: String => 
-                    req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/cache/$s")))
+              case Some(bytes) => {
+                Try(parse(bytes.decodeString("UTF-8"))) match {
+                  case Success(jv) => {
+                    val cmd = KV.PUT(compact(render(jv)))
+                    cache ! cmd
+                    Callback.fromFuture(cmd.promise.future).map { 
+                      case s: String => 
+                        req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/cache/$s")))
+                    }
+                  }
+                  
+                  case Failure(f) => {
+                    req.respond(HttpCodes.UNPROCESSABLE_ENTITY, s"cowardly refusing to store malformed JSON:  error was $f")
+                  }
                 }
+              }
               case None =>
-                req.respond(HttpCodes.UNPROCESSABLE_ENTITY, "cowardly refusing to store empty data")
+                req.respond(HttpCodes.BAD_REQUEST, "cowardly refusing to store empty data")
             }
           }
           
