@@ -28,4 +28,14 @@ class Client(endpointHost: String, port: Int) {
     val response = Http(request > (x => x))
     response().getHeader("Location")
   }
+  
+  def get(hash: String): Option[String] = {
+    val endpoint = (server / "cache" / hash).GET
+    val response = Http(endpoint OK as.String).option
+    response()
+  }
+  
+  def getOrElse(hash: String, default: String): String = {
+    get(hash).getOrElse(default)
+  }
 }
