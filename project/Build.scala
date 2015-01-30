@@ -6,7 +6,9 @@ object FirkinBuild  extends Build {
   
   lazy val common = project settings(commonSettings : _*)
 
-  lazy val server = project settings(serverSettings : _*) dependsOn(common)
+  lazy val server = project settings(serverSettings : _*) dependsOn(common, client)
+  
+  lazy val client = project settings(clientSettings : _*)
   
   lazy val root = (project in file(".")).aggregate(common)
   
@@ -41,6 +43,12 @@ object FirkinBuild  extends Build {
   )
   
   def commonSettings = baseSettings ++ colossusSettings ++ jsonSettings
+  
+  def clientSettings = jsonSettings ++ Seq(
+    libraryDependencies ++= Seq(
+      "net.databinder.dispatch" %% "dispatch-core" % "0.11.1"
+    )
+  )
   
   def serverSettings = commonSettings ++ Seq(
     initialCommands in console := """
