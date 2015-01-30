@@ -31,6 +31,17 @@ To interact with Firkin using `curl`, try the following:
     % curl http://localhost:4091/cache/
     {"cachedKeys":["a5e744d0164540d33b1d7ea616c28f2fa97e754a"]}
 
+To interact with Firkin using its Scala client library, try the following:
+
+    scala> val client = new com.freevariable.firkin.Client("localhost", 4091)
+    client: com.freevariable.firkin.Client = com.freevariable.firkin.Client@3f342608
+
+    scala> client.put("""{"foo": "bar"}""")
+    res0: String = http://localhost:4091/cache/a5e744d0164540d33b1d7ea616c28f2fa97e754a
+    
+    scala> client.getOrElse("a5e744d0164540d33b1d7ea616c28f2fa97e754a", "sorry!")
+    res1: String = {"foo":"bar"}
+
 ### answers to frequently anticipated questions
 
 1.  A firkin is 4.091 L but we can't have fractional ports.
