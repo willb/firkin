@@ -4,7 +4,7 @@ import Keys._
 import bintray.Plugin._
 
 object FirkinBuild  extends Build {
-  val VERSION = "0.1.1-SNAPSHOT"
+  val VERSION = "0.1.1"
   
   lazy val common = project settings(commonSettings ++ bintrayPublishSettings: _*)
 
@@ -24,7 +24,9 @@ object FirkinBuild  extends Build {
       "Akka Repo" at "http://repo.akka.io/repository",
       "spray" at "http://repo.spray.io/"
     ),
+    publishMavenStyle := false,
     crossScalaVersions := Seq("2.10.4", "2.11.5"),
+    licenses += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
     scalacOptions ++= Seq("-feature", "-Yrepl-sync", "-target:jvm-1.7", "-Xlint")
   )
   
