@@ -33,14 +33,18 @@ class KV extends Actor {
       db(hash) = value
       promise.success(hash)
     }
+    case LIST(promise) => {
+      promise.success(db.keys.toList)
+    }
   }
 }
 
 object KV {
   case class GET(key: String, promise: Promise[Option[String]] = Promise())
   case class PUT(value: String, promise: Promise[String] = Promise())
+  case class LIST(promise: Promise[List[String]] = Promise())
 
   def digestify(s: String) = {
-    MessageDigest.getInstance("SHA1").digest(s.getBytes).map("%02X".format(_)).mkString
+    MessageDigest.getInstance("SHA1").digest(s.getBytes).map("%02x".format(_)).mkString
   }
 }
