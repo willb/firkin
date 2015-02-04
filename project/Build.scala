@@ -4,7 +4,7 @@ import Keys._
 import bintray.Plugin._
 
 object FirkinBuild  extends Build {
-  val VERSION = "0.1.2-SNAPSHOT"
+  val VERSION = "0.1.2"
   
   lazy val common = project settings(commonSettings ++ bintrayPublishSettings: _*)
 
@@ -19,13 +19,11 @@ object FirkinBuild  extends Build {
   def baseSettings = Defaults.defaultSettings ++ Seq(
     organization := "com.freevariable",
     version := VERSION,
-    scalaVersion := SCALA_VERSION,
     resolvers ++= Seq(
       "Akka Repo" at "http://repo.akka.io/repository",
       "spray" at "http://repo.spray.io/"
     ),
-    publishMavenStyle := false,
-    crossScalaVersions := Seq("2.10.4", "2.11.5"),
+    crossScalaVersions := Seq(SCALA_210_VERSION, SCALA_211_VERSION),
     licenses += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
     scalacOptions ++= Seq("-feature", "-Yrepl-sync", "-target:jvm-1.7", "-Xlint")
   )
@@ -48,7 +46,7 @@ object FirkinBuild  extends Build {
   
   def commonSettings = baseSettings ++ colossusSettings ++ jsonSettings ++ Seq(
     name := "firkin",
-    crossScalaVersions := Seq("2.10.4", "2.11.5")
+    crossScalaVersions := Seq(SCALA_210_VERSION, SCALA_211_VERSION)
   )
   
   def clientSettings = baseSettings ++ jsonSettings ++ Seq(
@@ -66,7 +64,9 @@ object FirkinBuild  extends Build {
     """
   )
   
-  val SCALA_VERSION = "2.10.4"
+  val SCALA_210_VERSION = "2.10.4"
+  
+  val SCALA_211_VERSION = "2.11.5"
   
   val JSON4S_VERSION = "3.2.10"
   
