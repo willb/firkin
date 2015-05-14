@@ -35,6 +35,19 @@ class Client(endpointHost: String, port: Int) {
     response()
   }
   
+  def getTag(tag: String): Option[String] = {
+    val endpoint = (server / "tag" / tag).GET
+    val response = Http(endpoint OK as.String).option
+    response()  
+  }
+  
+  def putTag(tag: String, hash: String): String = {
+    val endpoint = (server / "tag").POST
+    val request = endpoint.setContentType("application/json", "UTF-8") << s""" {'tag' : '$tag'; 'hash' : '$hash'} """
+    val response = Http(request > (x => x))
+    response().getHeader("Location")
+  }
+  
   def getOrElse(hash: String, default: String): String = {
     get(hash).getOrElse(default)
   }

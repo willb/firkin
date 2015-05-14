@@ -102,6 +102,45 @@ object Firkin {
             }
           }
           
+          case req @ Get on Root / "tag" / tag => {
+            val cmd = KV.GET_TAG(tag)
+            val host = req.head.singleHeader("host").getOrElse("localhost:4091")
+            
+            cache ! cmd
+            Callback.fromFuture(cmd.promise.future).map {
+              case Some(hash) => req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/cache/$hash")))
+              case None => req.notFound("")
+            }
+          }
+          
+          case req @ Post on Root / "tag" => {
+            val host = req.head.singleHeader("host").getOrElse("localhost:4091")
+            
+            req.entity match {
+              case Some(bytes) => {
+                Try(parse(bytes.decodeString("UTF-8"))) match {
+                  case Success(jv) => {
+                    val tag = compact(render(jv \ "tag"))
+                    val hash = compact(render(jv \ "hash"))
+                    val cmd = KV.PUT_TAG(tag, hash)
+                    
+                    cache ! cmd
+                    Callback.fromFuture(cmd.promise.future).map {
+                      case Some(hash) => req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/cache/$hash")))
+                      case None => req.notFound("")
+                    }
+                  }
+                  
+                  case Failure(f) => {
+                    req.respond(HttpCodes.UNPROCESSABLE_ENTITY, s"can't store tag from malformed JSON:  error was $f")
+                  }
+                }
+              }
+              case None =>
+                req.respond(HttpCodes.BAD_REQUEST, "cowardly refusing to store empty data")
+            }
+          }
+          
           case req => {
             Console.println(s"unrecognized:  $req")
             req.notFound("whoops")
