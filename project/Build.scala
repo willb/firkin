@@ -59,6 +59,7 @@ object FirkinBuild  extends Build {
   )
   
   def serverSettings = commonSettings ++ Seq(
+    name := "firkin-server",
     initialCommands in console := """
     import com.freevariable.firkin.Firkin
     val cache = Firkin.basicStart

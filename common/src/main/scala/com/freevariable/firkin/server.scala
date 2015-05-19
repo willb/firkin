@@ -120,13 +120,14 @@ object Firkin {
               case Some(bytes) => {
                 Try(parse(bytes.decodeString("UTF-8"))) match {
                   case Success(jv) => {
-                    val tag = compact(render(jv \ "tag"))
-                    val hash = compact(render(jv \ "hash"))
+                    val org.json4s.JString(tag) = render(jv \ "tag")
+                    val org.json4s.JString(hash) = render(jv \ "hash")
+                    Console.println(s"tag is '$tag', hash is '$hash'")
                     val cmd = KV.PUT_TAG(tag, hash)
                     
                     cache ! cmd
                     Callback.fromFuture(cmd.promise.future).map {
-                      case Some(hash) => req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/cache/$hash")))
+                      case Some(hash) => req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/tag/$hash")))
                       case None => req.notFound("")
                     }
                   }
