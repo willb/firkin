@@ -38,7 +38,7 @@ class KV extends Actor {
       promise.success(db.keys.toList)
     }
     
-    case GET_TAG(tag, promise) => promise.success(tag_db.get(tag).flatMap {key => db.get(key)})
+    case GET_TAG(tag, promise) => promise.success(tag_db.get(tag)/* .flatMap {key => db.get(key)}*/)
     case PUT_TAG(tag, hash, promise) => {
       promise.success(db.get(hash).flatMap(ignored => {tag_db(tag) = hash; Some(tag)}))
     }

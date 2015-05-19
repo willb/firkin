@@ -35,10 +35,16 @@ class Client(endpointHost: String, port: Int) {
     response()
   }
   
+  def resolveTag(tag: String): Option[String] = {
+    val endpoint = (server / "tag-value" / tag).GET
+    val hash = Http(endpoint OK as.String).option
+    hash()
+  }
+  
   def getTag(tag: String): Option[String] = {
-    val endpoint = (server / "tag" / tag).GET
-    val response = Http(endpoint OK as.String).option
-    response()  
+    resolveTag(tag).flatMap { h =>
+      get(h)
+    }
   }
   
   def putTag(tag: String, hash: String): String = {

@@ -38,7 +38,7 @@ object FirkinBuild  extends Build {
 
   def colossusSettings = Seq(
     libraryDependencies ++= Seq(
-      "com.tumblr" %% "colossus" % "0.5.1",
+      "com.tumblr" %% "colossus" % "0.6.2",
       "com.typesafe.akka" %% "akka-actor"   % AKKA_VERSION,
       "com.typesafe.akka" %% "akka-agent"   % AKKA_VERSION,
       "com.typesafe.akka" %% "akka-testkit" % AKKA_VERSION
@@ -59,6 +59,7 @@ object FirkinBuild  extends Build {
   )
   
   def serverSettings = commonSettings ++ Seq(
+    name := "firkin-server",
     initialCommands in console := """
     import com.freevariable.firkin.Firkin
     val cache = Firkin.basicStart

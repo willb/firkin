@@ -18,6 +18,7 @@ package com.freevariable.firkin
 
 import akka.actor._
 
+import colossus._
 import colossus.IOSystem
 import colossus.service._
 import colossus.core.ServerRef
@@ -51,7 +52,7 @@ object Firkin {
         import connection.callbackExecutor
         
         connection.become {
-          case req @ Get on Root => req.ok("")
+          case req @ Get on Root => Callback.successful(req.ok(""))
           
           case req @ Get on Root / "cache" => {
             val cmd = KV.LIST()
@@ -84,14 +85,14 @@ object Firkin {
                   }
                   
                   case Failure(f) => {
-                    req.respond(HttpCodes.UNPROCESSABLE_ENTITY, s"cowardly refusing to store malformed JSON:  error was $f")
+                    Callback.successful(req.respond(HttpCodes.UNPROCESSABLE_ENTITY, s"cowardly refusing to store malformed JSON:  error was $f"))
                   }
                 }
               }
               case None =>
-                req.respond(HttpCodes.BAD_REQUEST, "cowardly refusing to store empty data")
+                Callback.successful(req.respond(HttpCodes.BAD_REQUEST, "cowardly refusing to store empty data"))
             }
-          }
+           }
           
           case req @ Get on Root / "cache" / hash => {
             val cmd = KV.GET(hash)
@@ -113,6 +114,17 @@ object Firkin {
             }
           }
           
+          case req @ Get on Root / "tag-value" / tag => {
+            val cmd = KV.GET_TAG(tag)
+            val host = req.head.singleHeader("host").getOrElse("localhost:4091")
+            
+            cache ! cmd
+            Callback.fromFuture(cmd.promise.future).map {
+              case Some(hash) => req.ok(hash)
+              case None => req.notFound("")
+            }
+          }
+          
           case req @ Post on Root / "tag" => {
             val host = req.head.singleHeader("host").getOrElse("localhost:4091")
             
@@ -120,30 +132,30 @@ object Firkin {
               case Some(bytes) => {
                 Try(parse(bytes.decodeString("UTF-8"))) match {
                   case Success(jv) => {
-                    val tag = compact(render(jv \ "tag"))
-                    val hash = compact(render(jv \ "hash"))
+                    val org.json4s.JString(tag) = render(jv \ "tag")
+                    val org.json4s.JString(hash) = render(jv \ "hash")
                     val cmd = KV.PUT_TAG(tag, hash)
                     
                     cache ! cmd
                     Callback.fromFuture(cmd.promise.future).map {
-                      case Some(hash) => req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/cache/$hash")))
+                      case Some(hash) => req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/tag/$hash")))
                       case None => req.notFound("")
                     }
                   }
                   
                   case Failure(f) => {
-                    req.respond(HttpCodes.UNPROCESSABLE_ENTITY, s"can't store tag from malformed JSON:  error was $f")
+                    Callback.successful(req.respond(HttpCodes.UNPROCESSABLE_ENTITY, s"can't store tag from malformed JSON:  error was $f"))
                   }
                 }
               }
               case None =>
-                req.respond(HttpCodes.BAD_REQUEST, "cowardly refusing to store empty data")
+                Callback.successful(req.respond(HttpCodes.BAD_REQUEST, "cowardly refusing to store empty data"))
             }
           }
           
           case req => {
             Console.println(s"unrecognized:  $req")
-            req.notFound("whoops")
+            Callback.successful(req.notFound("whoops"))
           }
         }
       }
