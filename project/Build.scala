@@ -21,7 +21,8 @@ object FirkinBuild  extends Build {
     version := VERSION,
     resolvers ++= Seq(
       "Akka Repo" at "http://repo.akka.io/repository",
-      "spray" at "http://repo.spray.io/"
+      "spray" at "http://repo.spray.io/",
+      "Will's bintray" at "https://dl.bintray.com/willb/maven/"
     ),
     crossScalaVersions := Seq(SCALA_210_VERSION, SCALA_211_VERSION),
     licenses += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
