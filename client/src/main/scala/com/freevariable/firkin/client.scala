@@ -35,6 +35,25 @@ class Client(endpointHost: String, port: Int) {
     response()
   }
   
+  def resolveTag(tag: String): Option[String] = {
+    val endpoint = (server / "tag-value" / tag).GET
+    val hash = Http(endpoint OK as.String).option
+    hash()
+  }
+  
+  def getTag(tag: String): Option[String] = {
+    resolveTag(tag).flatMap { h =>
+      get(h)
+    }
+  }
+  
+  def putTag(tag: String, hash: String): String = {
+    val endpoint = (server / "tag").POST
+    val request = endpoint.setContentType("application/json", "UTF-8") << s""" {'tag' : '$tag'; 'hash' : '$hash'} """
+    val response = Http(request > (x => x))
+    response().getHeader("Location")
+  }
+  
   def getOrElse(hash: String, default: String): String = {
     get(hash).getOrElse(default)
   }

@@ -25,6 +25,7 @@ class KV extends Actor {
   import KV._
 
   val db = collection.mutable.Map[String, String]()
+  val tag_db = collection.mutable.Map[String, String]()
 
   def receive = {
     case GET(key, promise) => promise.success(db.get(key))
@@ -36,6 +37,15 @@ class KV extends Actor {
     case LIST(promise) => {
       promise.success(db.keys.toList)
     }
+    
+    case GET_TAG(tag, promise) => promise.success(tag_db.get(tag)/* .flatMap {key => db.get(key)}*/)
+    case PUT_TAG(tag, hash, promise) => {
+      promise.success(db.get(hash).flatMap(ignored => {tag_db(tag) = hash; Some(tag)}))
+    }
+    case LIST_TAGS(promise) => {
+      promise.success(tag_db.keys.toList)
+    }
+  
   }
 }
 
@@ -43,6 +53,10 @@ object KV {
   case class GET(key: String, promise: Promise[Option[String]] = Promise())
   case class PUT(value: String, promise: Promise[String] = Promise())
   case class LIST(promise: Promise[List[String]] = Promise())
+
+  case class GET_TAG(tag: String, promise: Promise[Option[String]] = Promise())
+  case class PUT_TAG(tag: String, hash: String, promise: Promise[Option[String]] = Promise())
+  case class LIST_TAGS(promise: Promise[List[String]] = Promise())
 
   def digestify(s: String) = {
     MessageDigest.getInstance("SHA1").digest(s.getBytes).map("%02x".format(_)).mkString

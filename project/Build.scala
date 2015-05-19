@@ -4,13 +4,13 @@ import Keys._
 import bintray.Plugin._
 
 object FirkinBuild  extends Build {
-  val VERSION = "0.1.2"
+  val VERSION = "0.2.0"
   
-  lazy val common = project settings(commonSettings ++ bintrayPublishSettings: _*)
+  lazy val common = project settings(commonSettings: _*)
 
   lazy val server = project settings(serverSettings : _*) dependsOn(common, client)
   
-  lazy val client = project settings(clientSettings ++ bintrayPublishSettings: _*)
+  lazy val client = project settings(clientSettings: _*)
     
   lazy val root = (project in file(".")).aggregate(common, client)
   
@@ -26,7 +26,8 @@ object FirkinBuild  extends Build {
     crossScalaVersions := Seq(SCALA_210_VERSION, SCALA_211_VERSION),
     licenses += ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")),
     scalacOptions ++= Seq("-feature", "-Yrepl-sync", "-target:jvm-1.7", "-Xlint")
-  )
+  ) ++ bintraySettings
+
   
   def jsonSettings = Seq(
     libraryDependencies ++= Seq(
@@ -37,7 +38,7 @@ object FirkinBuild  extends Build {
 
   def colossusSettings = Seq(
     libraryDependencies ++= Seq(
-      "com.tumblr" %% "colossus" % "0.5.1",
+      "com.tumblr" %% "colossus" % "0.6.2",
       "com.typesafe.akka" %% "akka-actor"   % AKKA_VERSION,
       "com.typesafe.akka" %% "akka-agent"   % AKKA_VERSION,
       "com.typesafe.akka" %% "akka-testkit" % AKKA_VERSION
@@ -51,13 +52,14 @@ object FirkinBuild  extends Build {
   
   def clientSettings = baseSettings ++ jsonSettings ++ Seq(
     name := "firkin-client",
-    crossScalaVersions := Seq("2.10.4", "2.11.5"),
+    crossScalaVersions := Seq(SCALA_210_VERSION, SCALA_211_VERSION),
     libraryDependencies ++= Seq(
       "net.databinder.dispatch" %% "dispatch-core" % "0.11.1"
     )
   )
   
   def serverSettings = commonSettings ++ Seq(
+    name := "firkin-server",
     initialCommands in console := """
     import com.freevariable.firkin.Firkin
     val cache = Firkin.basicStart
