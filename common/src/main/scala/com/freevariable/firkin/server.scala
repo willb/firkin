@@ -80,7 +80,7 @@ object Firkin {
                     cache ! cmd
                     Callback.fromFuture(cmd.promise.future).map { 
                       case s: String => 
-                        req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/cache/$s")))
+                        req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/cache/$s"), ("X-Firkin-Hash", s)))
                     }
                   }
                   
