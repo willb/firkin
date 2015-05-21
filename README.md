@@ -64,6 +64,10 @@ To interact with Firkin using its Scala client library, try the following:
     
     scala> client.getTag("foobar")
     res2: Option[String] = Some({"foo":"bar"})
+    
+    scala> client.publish("foobar-2", """{"foo": "bar"}""")
+    res0: String = http://localhost:4091/tag/foobar-2
+
 
 ### answers to frequently anticipated questions
 

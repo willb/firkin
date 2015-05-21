@@ -80,7 +80,7 @@ object Firkin {
                     cache ! cmd
                     Callback.fromFuture(cmd.promise.future).map { 
                       case s: String => 
-                        req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/cache/$s")))
+                        req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/cache/$s"), ("X-Firkin-Hash", s)))
                     }
                   }
                   
@@ -160,5 +160,20 @@ object Firkin {
         }
       }
     }
+  }
+  
+  def main(args: Array[String]) {
+    implicit val io = IOSystem()
+    io.actorSystem.actorOf(Props[KV])
+    
+    val port = args match {
+      case Array("--port", port) => Try(port.toInt).toOption.getOrElse(4091)
+      case Array() => 4091
+      case _ => { Console.println("usage:  Firkin [--port PORT]") ; -1 }
+    }
+    
+    if (port < 0) System.exit(1)
+    
+    start(port)
   }
 }

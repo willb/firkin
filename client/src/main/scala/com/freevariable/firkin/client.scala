@@ -22,15 +22,34 @@ class Client(endpointHost: String, port: Int) {
   
   lazy val server = host(endpointHost, port)
   
-  def put(data: String): String = {
+  def putData(data: String) = {
     val endpoint = (server / "cache").POST
     val request = endpoint.setContentType("application/json", "UTF-8") << data
     val response = Http(request > (x => x))
-    response().getHeader("Location")
+    response()
+  }
+  
+  def put(data: String): String = {
+    val response = putData(data)
+    val headers = response.getHeaders()
+    Console.println(headers)
+    response.getHeader("Location")
+  }
+  
+  def publish(tag: String, data: String): String = {
+    val response = putData(data)
+    val hash = response.getHeader("X-Firkin-Hash")
+    putTag(tag, hash)
   }
   
   def get(hash: String): Option[String] = {
     val endpoint = (server / "cache" / hash).GET
+    val response = Http(endpoint OK as.String).option
+    response()
+  }
+  
+  def listObjects(): Option[String] = {
+    val endpoint = (server / "cache").GET
     val response = Http(endpoint OK as.String).option
     response()
   }
@@ -49,7 +68,7 @@ class Client(endpointHost: String, port: Int) {
   
   def putTag(tag: String, hash: String): String = {
     val endpoint = (server / "tag").POST
-    val request = endpoint.setContentType("application/json", "UTF-8") << s""" {'tag' : '$tag'; 'hash' : '$hash'} """
+    val request = endpoint.setContentType("application/json", "UTF-8") << s""" {"tag" : "$tag", "hash" : "$hash"} """
     val response = Http(request > (x => x))
     response().getHeader("Location")
   }
