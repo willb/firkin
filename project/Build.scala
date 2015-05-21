@@ -4,7 +4,7 @@ import Keys._
 import bintray.Plugin._
 
 object FirkinBuild  extends Build {
-  val VERSION = "0.2.0"
+  val VERSION = "0.2.1"
   
   lazy val common = project settings(commonSettings: _*)
 
