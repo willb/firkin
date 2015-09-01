@@ -2,6 +2,26 @@
 
 storage, aging, and access for small structured data
 
+### Adding firkin to your project:
+
+Use the following resolver:
+``` scala
+resolvers += "Will's bintray" at "https://dl.bintray.com/willb/maven/"
+
+```
+
+To use a firkin server:
+
+``` scala
+libraryDependencies += "com.freevariable" %% "firkin" % "0.2.1"
+```
+
+To use a firkin client:
+
+``` scala
+libraryDependencies += "com.freevariable" %% "firkin-client" % "0.2.1"
+```
+
 ### usage
 
 Fire up a Firkin server with 
