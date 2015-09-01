@@ -39,7 +39,7 @@ object FirkinBuild  extends Build {
 
   def colossusSettings = Seq(
     libraryDependencies ++= Seq(
-      "com.tumblr" %% "colossus" % "0.6.2",
+      "com.tumblr" %% "colossus" % "0.6.5",
       "com.typesafe.akka" %% "akka-actor"   % AKKA_VERSION,
       "com.typesafe.akka" %% "akka-agent"   % AKKA_VERSION,
       "com.typesafe.akka" %% "akka-testkit" % AKKA_VERSION
