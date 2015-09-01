@@ -2,13 +2,33 @@
 
 storage, aging, and access for small structured data
 
+### dependencies
+
+Use the following resolver:
+``` scala
+resolvers += "Will's bintray" at "https://dl.bintray.com/willb/maven/"
+
+```
+
+To embed the Firkin server in your project:
+
+``` scala
+libraryDependencies += "com.freevariable" %% "firkin" % "0.3.0"
+```
+
+To use the Firkin client in your project:
+
+``` scala
+libraryDependencies += "com.freevariable" %% "firkin-client" % "0.3.0"
+```
+
 ### usage
 
 Fire up a Firkin server with 
 
     com.freevariable.firkin.Firkin.start()(colossus.IOSystem())
 
-or `sbt server/console`.
+or run `sbt server/console` from a clone of the Firkin repository.
 
 You'll then have a server running on port 4091.  You can store and access data via the following HTTP routes:
 
