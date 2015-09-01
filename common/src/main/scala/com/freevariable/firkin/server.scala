@@ -118,7 +118,7 @@ object Firkin {
             
             cache ! cmd
             Callback.fromFuture(cmd.promise.future).map {
-              case Some(doc) => req.respond(HttpCodes.OK, doc.toString, List(("Access-Control-Allow-Origin", "*")))
+              case Some((hash, doc)) => req.respond(HttpCodes.OK, doc.toString, List(("X-Firkin-Hash", s"http://$host/cache/$hash"), ("Access-Control-Allow-Origin", "*")))
               case None => req.notFound("")
             }
           }
