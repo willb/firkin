@@ -39,6 +39,7 @@ class KV extends Actor {
     }
     
     case GET_TAG(tag, promise) => promise.success(tag_db.get(tag)/* .flatMap {key => db.get(key)}*/)
+    case RESOLVE_TAG(tag, promise) => promise.success(tag_db.get(tag).flatMap {key => db.get(key)} )
     case PUT_TAG(tag, hash, promise) => {
       promise.success(db.get(hash).flatMap(ignored => {tag_db(tag) = hash; Some(tag)}))
     }
@@ -55,6 +56,7 @@ object KV {
   case class LIST(promise: Promise[List[String]] = Promise())
 
   case class GET_TAG(tag: String, promise: Promise[Option[String]] = Promise())
+  case class RESOLVE_TAG(tag: String, promise: Promise[Option[String]] = Promise())
   case class PUT_TAG(tag: String, hash: String, promise: Promise[Option[String]] = Promise())
   case class LIST_TAGS(promise: Promise[List[String]] = Promise())
 

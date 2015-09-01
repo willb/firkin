@@ -52,6 +52,15 @@ object Firkin {
         import connection.callbackExecutor
         
         connection.become {
+	  case req @ Options on _ => {
+	    Callback.successful(req.respond(HttpCodes.OK, 
+			"", 
+			List(("Access-Control-Allow-Origin", "*"),
+			     ("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
+			     ("Access-Control-Allow-Headers", "Content-Type"),
+			     ("Access-Control-Max-Age", "86400"))))
+	  }
+
           case req @ Get on Root => Callback.successful(req.ok(""))
           
           case req @ Get on Root / "cache" => {
@@ -98,18 +107,18 @@ object Firkin {
             val cmd = KV.GET(hash)
             cache ! cmd
             Callback.fromFuture(cmd.promise.future).map{
-              case Some(v) => req.ok(v.toString )
+              case Some(v) => req.respond(HttpCodes.OK, v.toString, List(("Access-Control-Allow-Origin", "*")) )
               case None => req.notFound("")
             }
           }
           
           case req @ Get on Root / "tag" / tag => {
-            val cmd = KV.GET_TAG(tag)
+            val cmd = KV.RESOLVE_TAG(tag)
             val host = req.head.singleHeader("host").getOrElse("localhost:4091")
             
             cache ! cmd
             Callback.fromFuture(cmd.promise.future).map {
-              case Some(hash) => req.respond(HttpCodes.FOUND, "", List(("Location", s"http://$host/cache/$hash")))
+              case Some(doc) => req.respond(HttpCodes.OK, doc.toString, List(("Access-Control-Allow-Origin", "*")))
               case None => req.notFound("")
             }
           }
