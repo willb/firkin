@@ -46,21 +46,29 @@ object Firkin {
     import io.actorSystem.dispatcher
 
     val cache = io.actorSystem.actorOf(Props[KV])
-
+    
+    def lookupKey(cmd: KV.GET, req: HttpRequest)(implicit ex: colossus.service.CallbackExecutor) = {
+     cache ! cmd
+     Callback.fromFuture(cmd.promise.future).map{
+       case Some(v) => req.ok(v.toString )
+       case None => req.notFound("")
+     }
+    }
+    
     Service.serve[Http]("firkin", port){ context =>
       context.handle{ connection =>
         import connection.callbackExecutor
         
         connection.become {
-	  case req @ Options on _ => {
-	    Callback.successful(req.respond(HttpCodes.OK, 
-			"", 
-			List(("Access-Control-Allow-Origin", "*"),
-			     ("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
-			     ("Access-Control-Allow-Headers", "Content-Type"),
-			     ("Access-Control-Max-Age", "86400"))))
-	  }
-
+          case req @ Options on _ => {
+            Callback.successful(req.respond(HttpCodes.OK, 
+              "", 
+              List(("Access-Control-Allow-Origin", "*"),
+                  ("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
+                  ("Access-Control-Allow-Headers", "Content-Type"),
+                  ("Access-Control-Max-Age", "86400"))))
+              }
+          
           case req @ Get on Root => Callback.successful(req.ok(""))
           
           case req @ Get on Root / "cache" => {
@@ -104,12 +112,11 @@ object Firkin {
            }
           
           case req @ Get on Root / "cache" / hash => {
-            val cmd = KV.GET(hash)
-            cache ! cmd
-            Callback.fromFuture(cmd.promise.future).map{
-              case Some(v) => req.respond(HttpCodes.OK, v.toString, List(("Access-Control-Allow-Origin", "*")) )
-              case None => req.notFound("")
-            }
+            lookupKey(KV.GET(hash), req)
+          }
+          
+          case req @ Head on Root / "cache" / hash => {
+            lookupKey(KV.GET(hash), req)
           }
           
           case req @ Get on Root / "tag" / tag => {
